@@ -12,7 +12,7 @@
 
         <div class="form-group">
             <asp:Label Text="Fecha" runat="server" />
-            <asp:Calendar ID="FechaCalendar" runat="server"></asp:Calendar>
+            <asp:Calendar ID="FechaCalendar" runat="server" OnLoad="FechaCalendar_Load" OnSelectionChanged="FechaCalendar_SelectionChanged"></asp:Calendar>
         </div>
 
         <div class="form-group  ">
@@ -52,7 +52,7 @@
 
         <div class="form-group">
             <asp:Label Text="Vencimiento" runat="server" />
-            <asp:Calendar ID="VencimientoCalendar" runat="server"></asp:Calendar>
+            <asp:Calendar ID="VencimientoCalendar" runat="server" OnSelectionChanged="VencimientoCalendar_SelectionChanged"></asp:Calendar>
         </div>
 
     </section>
@@ -66,14 +66,28 @@
             <asp:Label Text="Producto:" runat="server" />
             <asp:TextBox ID="ProductoNombreTextBox" CssClass="form-control " ReadOnly="true" Text="" runat="server" />
             <asp:Label Text="Existencia:" runat="server" />
-            <asp:TextBox ID="ExistenciaTextBox" CssClass="form-control " Text="0" runat="server" />
+            <asp:TextBox ID="ExistenciaTextBox" CssClass="form-control " TextMode="Number" Text="0" runat="server" />
             <asp:Label Text="Cantidad:" runat="server" />
             <asp:TextBox ID="CantidadTextBox" TextMode="Number"  CssClass="form-control " Text="0" runat="server" />
             <asp:Button Text="Agregar" ID="AgregarButton" CssClass="btn btn-outline-secondary" runat="server" OnClick="AgregarButton_Click" />
         </div>
 
         <div class="table-responsive container">
-            <asp:GridView ID="ProductosGridView" CssClass="table table-condensed  table-responsive" runat="server">
+            <asp:GridView ID="ProductosGridView" CssClass="table table-condensed  table-responsive" runat="server" CellPadding="4" ForeColor="#333333" GridLines="None" OnSelectedIndexChanged="ProductosGridView_SelectedIndexChanged" OnRowCommand="ProductosGridView_RowCommand">
+                <AlternatingRowStyle BackColor="White" />
+                <Columns>
+                    <asp:ButtonField Text="Eliminar" CommandName="EliminarButton"  ItemStyle-CssClass="btn btn-danger btn-sm"  />
+                </Columns>
+                <EditRowStyle BackColor="#2461BF" />
+                <FooterStyle BackColor="#507CD1" Font-Bold="True" ForeColor="White" />
+                <HeaderStyle BackColor="#507CD1" Font-Bold="True" ForeColor="White" />
+                <PagerStyle BackColor="#2461BF" ForeColor="White" HorizontalAlign="Center" />
+                <RowStyle BackColor="#EFF3FB" />
+                <SelectedRowStyle BackColor="#D1DDF1" Font-Bold="True" ForeColor="#333333" />
+                <SortedAscendingCellStyle BackColor="#F5F7FB" />
+                <SortedAscendingHeaderStyle BackColor="#6D95E1" />
+                <SortedDescendingCellStyle BackColor="#E9EBEF" />
+                <SortedDescendingHeaderStyle BackColor="#4870BE" />
             </asp:GridView>
             <asp:TextBox ID="TotalTextBox" Text="0" CssClass="form-control" runat="server" />  
         </div>

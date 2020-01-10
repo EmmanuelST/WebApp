@@ -6,6 +6,7 @@ using System.Web;
 
 namespace WebAplication.Entidades
 {
+    [Serializable]
     public class VentaDetalles
     {
         [Key]

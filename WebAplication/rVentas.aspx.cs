@@ -19,10 +19,36 @@ namespace WebAplication
 
         protected void Page_Load(object sender, EventArgs e)
         {
+            if (!Page.IsPostBack)
+            {
+                ViewState["Venta"] = new Ventas();
+                
+            }
+
             detalles = new List<VentaDetalles>();
             venta = new Ventas();
 
-            detalles.Add(new VentaDetalles()
+            venta = (Ventas)ViewState["Venta"];
+            detalles = venta.Detalles;//(VentaDetalles)ViewState["Lista"];
+
+            /*if(!Page.IsPostBack)
+            {
+                base.ViewState["Ventas"] = new Ventas();
+            }
+            
+            detalles = new List<VentaDetalles>();
+            venta = new Ventas();
+
+            if(base.ViewState["Venta"] != null)
+            {
+                venta = (Ventas)base.ViewState["Venta"];
+                detalles = venta.Detalles;
+            }*/
+
+            //CargarGrip();
+
+
+            /*detalles.Add(new VentaDetalles()
             {
                 IdVentaDetalle = 0,
                 IdVenta = 0,
@@ -43,6 +69,7 @@ namespace WebAplication
             });
 
             venta.Detalles = detalles;
+            venta.Total = Ventas.CalcularTotal(detalles);*/
         }
 
 
@@ -59,6 +86,8 @@ namespace WebAplication
                 }
 
                 ClienteTextBox.Text = cliente.Nombre;
+
+                IdClienteTextBox.Focus();
 
 
             }
@@ -123,7 +152,7 @@ namespace WebAplication
                 }
 
                 VendedorTextBox.Text = vendedor.Nombre;
-
+                IdVendedorTextBox.Focus();
 
             }
             catch (Exception)
@@ -144,7 +173,9 @@ namespace WebAplication
                 }
 
                 ProductoNombreTextBox.Text = producto.Descripcion;
-
+                ExistenciaTextBox.Text = producto.Existencia.ToString();
+                
+                ProductoIdTextBox.Focus();
 
             }
             catch (Exception)
@@ -178,7 +209,41 @@ namespace WebAplication
 
         protected void AgregarButton_Click(object sender, EventArgs e)
         {
+            RepositorioBase<Productos> db = new RepositorioBase<Productos>();
 
+            try
+            {
+                Productos producto = null;
+                producto = db.Buscar(int.Parse(ProductoIdTextBox.Text));
+
+                if(producto == null)
+                {
+                    Utilidades.Mensaje("No se encontro el producto",this,GetType());
+                    return;
+                }
+
+                detalles.Add(new VentaDetalles()
+                {
+                    IdProducto = producto.IdProductos,
+                    IdVenta = 0,
+                    IdVentaDetalle = 0,
+                    Cantidad = decimal.Parse(CantidadTextBox.Text),
+                    Precio = producto.Precio,
+                    SubTotal = decimal.Parse(CantidadTextBox.Text) * producto.Precio
+
+                });
+
+            }catch(Exception)
+            {
+                throw;
+            }
+
+
+            venta.Detalles = detalles;
+            venta.Total = Ventas.CalcularTotal(detalles);
+            ViewState["Venta"] = venta;
+            CargarGrip();
+            base.ViewState["Ventas"] = venta;
         }
 
         protected void GuardarButton_Click(object sender, EventArgs e)
@@ -186,8 +251,8 @@ namespace WebAplication
             RepositorioVentas db = new RepositorioVentas();
             Ventas ventas = new Ventas();
 
-           /* try
-            {*/
+            try
+            {
                 ventas = LlenarClase();
 
                 if (db.Guardar(ventas))
@@ -202,11 +267,11 @@ namespace WebAplication
 
 
 
-            //}
-            /*catch (Exception)
+            }
+            catch (Exception)
             {
                 throw;
-            }*/
+            }
 
 
 
@@ -227,6 +292,7 @@ namespace WebAplication
                 venta.TasaInteres = decimal.Parse(InteresTextBox.Text);
                 venta.HastaFecha = VencimientoCalendar.SelectedDate;
                 venta.Detalles = detalles;
+                venta.Total = decimal.Parse(TotalTextBox.Text);
                 //todo: Realizar el registro de usuario
                 venta.IdUsuario = 0;
                 venta.Comentario = ComentarioTextBox.Text;
@@ -261,7 +327,7 @@ namespace WebAplication
             ProductoNombreTextBox.Text = string.Empty;
             CantidadTextBox.Text = "0";
             detalles = new List<VentaDetalles>();
-            ComentarioTextBox.Text = string.Empty;
+            ComentarioTextBox.Text = "Nada";
             ActualizarLista();
             CargarGrip();
             InteresTextBox.ReadOnly = true;
@@ -278,12 +344,47 @@ namespace WebAplication
         private void ActualizarLista()
         {
             venta.Detalles = detalles;
-            venta.CalcularTotal();
+            venta.Total = Ventas.CalcularTotal(detalles);
         }
 
         protected void LimpiarButton_Click(object sender, EventArgs e)
         {
             Limpiar();
+        }
+
+        protected void FechaCalendar_SelectionChanged(object sender, EventArgs e)
+        {
+            FechaCalendar.Focus();
+        }
+
+        protected void VencimientoCalendar_SelectionChanged(object sender, EventArgs e)
+        {
+            VencimientoCalendar.Focus();
+        }
+
+        protected void FechaCalendar_Load(object sender, EventArgs e)
+        {
+            
+        }
+
+        protected void ProductosGridView_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        protected void ProductosGridView_RowCommand(object sender, GridViewCommandEventArgs e)
+        {
+            if(e.CommandName == "EliminarButton")
+            {
+                int indice = Convert.ToInt32(e.CommandArgument);
+                detalles.RemoveAt(indice);
+                venta.Detalles = detalles;
+
+                Utilidades.Mensaje("Llego",this,GetType());
+                ViewState["Venta"] = venta;
+                CargarGrip();
+                    
+            }
         }
     }
 }

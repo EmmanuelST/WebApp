@@ -8,6 +8,7 @@ using System.Web;
 
 namespace WebAplication.Entidades
 {
+    [Serializable]
     public class Ventas
     {
         [Key]
@@ -42,14 +43,15 @@ namespace WebAplication.Entidades
             Detalles = new List<VentaDetalles>();
         }
 
-        public void CalcularTotal()
+        public static decimal CalcularTotal(List<VentaDetalles> detalles)
         {
-            Total = 0;
-            foreach(var obj in Detalles)
+            decimal total = 0;
+            foreach(var obj in detalles)
             {
-                Total += obj.Cantidad * obj.Precio;
+                total += obj.Cantidad * obj.Precio;
             }
 
+            return total;
         }
 
 
